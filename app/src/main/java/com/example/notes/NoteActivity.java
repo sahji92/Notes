@@ -9,12 +9,14 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.notes.model.Note;
 
-public class NoteActivity extends AppCompatActivity implements View.OnTouchListener, GestureDetector.OnGestureListener,GestureDetector.OnDoubleTapListener {
+public class NoteActivity extends AppCompatActivity implements View.OnTouchListener, GestureDetector.OnGestureListener,GestureDetector.OnDoubleTapListener, View.OnClickListener {
 
     private String Tag;
     private LinedEditText linedEditText;
@@ -23,6 +25,11 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
     private boolean isNewNote;
     private Note initialNote;
     private GestureDetector gestureDetector;
+    private static final int EDIT_MODE_ENABLED=1;
+    private static final int EDIT_MODE_DISABLED=0;
+    private int mode;
+    private RelativeLayout back_arrow_container,check_container;
+    private ImageButton check,backArrow;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,9 +37,14 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
       linedEditText=findViewById(R.id.note_text);
       editTitle=findViewById(R.id.note_edit_title);
       viewTitle=findViewById(R.id.note_text_title);
+      back_arrow_container=findViewById(R.id.back_arrow_container);
+      check_container=findViewById(R.id.check_container);
+      check=findViewById(R.id.toolbar_check);
+      backArrow=findViewById(R.id.toolbar_back_arrow);
       if(getIncomingIntent()){
           //this is new note ...edit mode
           setNewNoteProperties();
+          enableEditMode();
       }
       else{
          // this is not a new note ..view mode
@@ -40,17 +52,37 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
       }
       setListeners();
     }
+    private void enableEditMode(){
+        back_arrow_container.setVisibility(View.GONE);
+        check_container.setVisibility(View.VISIBLE);
+
+        viewTitle.setVisibility(View.GONE);
+        editTitle.setVisibility(View.VISIBLE);
+        mode=EDIT_MODE_ENABLED;
+    }
+    private void disableEditMode(){
+        back_arrow_container.setVisibility(View.VISIBLE);
+        check_container.setVisibility(View.GONE);
+
+        viewTitle.setVisibility(View.VISIBLE);
+        editTitle.setVisibility(View.GONE);
+        mode=EDIT_MODE_DISABLED;
+    }
     public void setListeners(){
         linedEditText.setOnTouchListener(this);
         gestureDetector=new GestureDetector(this,this);
+        check.setOnClickListener(this);
+        viewTitle.setOnClickListener(this);
     }
     private boolean getIncomingIntent(){
         if(getIntent().hasExtra("selected_note")){
             initialNote=getIntent().getParcelableExtra("selected_note");
             isNewNote=false;
+            mode=EDIT_MODE_DISABLED;
             return false;
         }
         isNewNote=true;
+        mode=EDIT_MODE_ENABLED;
         return true;
     }
     private void setNoteProperties(){
@@ -70,7 +102,7 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
-        Toast.makeText(this,"ondoubletap",Toast.LENGTH_SHORT).show();
+        enableEditMode();
         return false;
     }
 
@@ -114,5 +146,28 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         return gestureDetector.onTouchEvent(event);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.toolbar_check:
+                 disableEditMode();
+                break;
+            case R.id.note_text_title:
+                  enableEditMode();
+                  editTitle.requestFocus();
+                  editTitle.setSelection(editTitle.length());
+                break;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mode==EDIT_MODE_ENABLED){
+          onClick(check);
+        }
+        else
+        super.onBackPressed();
     }
 }
