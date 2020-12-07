@@ -4,7 +4,7 @@
     android:layout_height="?attr/actionBarSize"
     android:weightSum="100"
     android:orientation="horizontal"
-    android:background="@color/design_default_color_primary_dark"
+    android:background="@color/design_default_color_primary"
     android:gravity="center_vertical">
 
     <RelativeLayout
