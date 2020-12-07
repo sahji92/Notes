@@ -35,6 +35,7 @@ public class NotesListActivity extends AppCompatActivity implements NotesRecycle
             Note note = new Note();
             note.setTitle("AAA" + i);
             note.setTimestamp("Jan 2019");
+            note.setContent("SSSSSSSSSSSSSSS");
             notes.add(note);
         }
     }
