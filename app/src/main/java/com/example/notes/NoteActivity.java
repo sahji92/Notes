@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.notes.model.Note;
+import com.example.notes.persistance.NoteRepository;
 
 public class NoteActivity extends AppCompatActivity implements View.OnTouchListener, GestureDetector.OnGestureListener,GestureDetector.OnDoubleTapListener, View.OnClickListener {
 
@@ -34,6 +35,8 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
     private int mode;
     private RelativeLayout back_arrow_container,check_container;
     private ImageButton check,backArrow;
+    private NoteRepository noteRepository;
+    private Note mFinalNote;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +48,7 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
       check_container=findViewById(R.id.check_container);
       check=findViewById(R.id.toolbar_check);
       backArrow=findViewById(R.id.toolbar_back_arrow);
+      noteRepository=new NoteRepository(this);
       if(getIncomingIntent()){
           //this is new note ...edit mode
           setNewNoteProperties();
@@ -88,6 +92,21 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
         editTitle.setVisibility(View.GONE);
         mode=EDIT_MODE_DISABLED;
         disableContentInteraction();
+        // Check if they typed anything into the note. Don't want to save an empty note.
+        String temp = linedEditText.getText().toString();
+        temp = temp.replace("\n", "");
+        temp = temp.replace(" ", "");
+        if(temp.length() > 0){
+            mFinalNote.setTitle(editTitle.getText().toString());
+            mFinalNote.setContent(linedEditText.getText().toString());
+
+            // If the note was altered, save it.
+            if(!mFinalNote.getContent().equals(initialNote.getContent())
+                    || !mFinalNote.getTitle().equals(initialNote.getTitle())){
+                saveChanges();
+            }
+        }
+        saveChanges();
     }
     private void hideSoftKeyboard(){
         InputMethodManager imm=(InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -107,6 +126,7 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
     private boolean getIncomingIntent(){
         if(getIntent().hasExtra("selected_note")){
             initialNote=getIntent().getParcelableExtra("selected_note");
+            mFinalNote=getIntent().getParcelableExtra("selected_note");
             isNewNote=false;
             mode=EDIT_MODE_DISABLED;
             return false;
@@ -114,6 +134,17 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
         isNewNote=true;
         mode=EDIT_MODE_ENABLED;
         return true;
+    }
+    private void saveChanges(){
+     if(isNewNote){
+      saveNewNote();
+     }
+     else {
+
+     }
+    }
+    private void saveNewNote(){
+        noteRepository.insertNoteTask(mFinalNote);
     }
     private void setNoteProperties(){
         viewTitle.setText(initialNote.getTitle());
@@ -123,6 +154,10 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
     private void setNewNoteProperties(){
         viewTitle.setText("Note title");
         editTitle.setText("Note title");
+        mFinalNote=new Note();
+        initialNote=new Note();
+        mFinalNote.setTitle("Note Title");
+        initialNote.setTitle("Note Title");
     }
 
     @Override
