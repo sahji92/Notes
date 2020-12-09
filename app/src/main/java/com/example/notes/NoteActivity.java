@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.example.notes.model.Note;
 import com.example.notes.persistance.NoteRepository;
+import com.example.notes.util.Utility;
 
 public class NoteActivity extends AppCompatActivity implements View.OnTouchListener, GestureDetector.OnGestureListener,GestureDetector.OnDoubleTapListener, View.OnClickListener, TextWatcher {
 
@@ -51,7 +52,6 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
       check=findViewById(R.id.toolbar_check);
       backArrow=findViewById(R.id.toolbar_back_arrow);
       noteRepository=new NoteRepository(this);
-      editTitle.addTextChangedListener(this);
       if(getIncomingIntent()){
           //this is new note ...edit mode
           setNewNoteProperties();
@@ -102,7 +102,7 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
         if(temp.length() > 0){
             mFinalNote.setTitle(editTitle.getText().toString());
             mFinalNote.setContent(linedEditText.getText().toString());
-
+            String timestamp=Utility.getCurrentTimeStamp();
             // If the note was altered, save it.
             if(!mFinalNote.getContent().equals(initialNote.getContent())
                     || !mFinalNote.getTitle().equals(initialNote.getTitle())){
@@ -125,6 +125,7 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
         check.setOnClickListener(this);
         viewTitle.setOnClickListener(this);
         backArrow.setOnClickListener(this);
+        editTitle.addTextChangedListener(this);
     }
     private boolean getIncomingIntent(){
         if(getIntent().hasExtra("selected_note")){
@@ -264,7 +265,7 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
 
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-       editTitle.setText(charSequence.toString());
+       viewTitle.setText(charSequence.toString());
     }
 
     @Override
