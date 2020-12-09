@@ -7,6 +7,8 @@ import android.app.Activity;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -21,7 +23,7 @@ import android.widget.Toast;
 import com.example.notes.model.Note;
 import com.example.notes.persistance.NoteRepository;
 
-public class NoteActivity extends AppCompatActivity implements View.OnTouchListener, GestureDetector.OnGestureListener,GestureDetector.OnDoubleTapListener, View.OnClickListener {
+public class NoteActivity extends AppCompatActivity implements View.OnTouchListener, GestureDetector.OnGestureListener,GestureDetector.OnDoubleTapListener, View.OnClickListener, TextWatcher {
 
     private String Tag;
     private LinedEditText linedEditText;
@@ -49,6 +51,7 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
       check=findViewById(R.id.toolbar_check);
       backArrow=findViewById(R.id.toolbar_back_arrow);
       noteRepository=new NoteRepository(this);
+      editTitle.addTextChangedListener(this);
       if(getIncomingIntent()){
           //this is new note ...edit mode
           setNewNoteProperties();
@@ -252,5 +255,20 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
          if(mode==EDIT_MODE_ENABLED){
            enableEditMode();
          }
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+       editTitle.setText(charSequence.toString());
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+
     }
 }
