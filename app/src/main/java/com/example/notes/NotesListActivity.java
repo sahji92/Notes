@@ -2,6 +2,7 @@ package com.example.notes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,21 +14,24 @@ import android.view.View;
 
 import com.example.notes.adapters.NotesRecyclerAdapter;
 import com.example.notes.model.Note;
+import com.example.notes.persistance.NoteRepository;
 import com.example.notes.util.VerticalSpacingItemDecorator;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NotesListActivity extends AppCompatActivity implements NotesRecyclerAdapter.OnNoteListener {
     private RecyclerView recyclerView;
     private ArrayList<Note> notes=new ArrayList<>();
     private NotesRecyclerAdapter adapter;
     private String Tag;
-
+    private NoteRepository noteRepository;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notes_list);
         recyclerView=findViewById(R.id.recyclerView);
+        noteRepository=new NoteRepository(this);
         findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -38,7 +42,22 @@ public class NotesListActivity extends AppCompatActivity implements NotesRecycle
         initRecyclerView();
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         setTitle("Notes");
-        addFakeNotes();
+        //addFakeNotes();
+        retrieveNotes();
+    }
+    private void retrieveNotes(){
+        noteRepository.retrieveNotesTask().observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(List<Note> notess) {
+             if(notes.size()>0){
+            notes.clear();
+             }
+             if(notess!=null){
+               notes.addAll(notess);
+             }
+             adapter.notifyDataSetChanged();
+            }
+        });
     }
     public void addFakeNotes(){
         for(int i=0;i<30;i++) {
