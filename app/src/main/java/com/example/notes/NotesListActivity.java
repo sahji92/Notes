@@ -98,5 +98,6 @@ public class NotesListActivity extends AppCompatActivity implements NotesRecycle
     private void deleteNote(Note note){
       notes.remove(note);
       adapter.notifyDataSetChanged();
+      noteRepository.deleteNoteTask(note);
     }
 }
