@@ -130,7 +130,11 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
     private boolean getIncomingIntent(){
         if(getIntent().hasExtra("selected_note")){
             initialNote=getIntent().getParcelableExtra("selected_note");
-            mFinalNote=getIntent().getParcelableExtra("selected_note");
+            mFinalNote = new Note();
+            mFinalNote.setTitle(initialNote.getTitle());
+            mFinalNote.setContent(initialNote.getContent());
+            mFinalNote.setTimestamp(initialNote.getTimestamp());
+            mFinalNote.setId(initialNote.getId());
             isNewNote=false;
             mode=EDIT_MODE_DISABLED;
             return false;
@@ -144,8 +148,11 @@ public class NoteActivity extends AppCompatActivity implements View.OnTouchListe
       saveNewNote();
      }
      else {
-
+         updateNote();
      }
+    }
+    private void updateNote(){
+        noteRepository.updateNoteTask(mFinalNote);
     }
     private void saveNewNote(){
         noteRepository.insertNoteTask(mFinalNote);
